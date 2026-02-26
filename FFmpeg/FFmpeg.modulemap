@@ -1,0 +1,9 @@
+module FFmpeg {
+    header "shim.h"
+    link "avcodec"
+    link "avformat"
+    link "avutil"
+    link "swscale"
+    link "swresample"
+    export *
+}

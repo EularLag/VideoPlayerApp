@@ -21,8 +21,7 @@ struct FormatDetector {
 
     /// AVFoundation 原生支持的格式扩展名
     private static let avfSupportedExtensions: Set<String> = [
-        "mp4", "mov", "m4v", "3gp", "3g2",
-        "avi", // 部分 AVI 支持
+        "mp4", "mov", "m4v", "3gp", "3g2"
     ]
 
     /// AVFoundation 原生支持的 UTTypes
@@ -31,7 +30,7 @@ struct FormatDetector {
         .audiovisualContent,
         .quickTimeMovie,
         .mpeg4Movie,
-        .appleProtectedMPEG4Video,
+        .appleProtectedMPEG4Video
     ]
 
     /// 检测文件格式类型
@@ -61,19 +60,39 @@ struct FormatDetector {
     private static let ffmpegSupportedExtensions: Set<String> = [
         // AVFoundation 也支持的
         "mp4", "mov", "m4v", "3gp", "3g2", "avi",
-        // FFmpeg 额外支持的
+        // FFmpeg 额外支持的容器格式
         "mkv", "webm", "flv", "wmv", "rm", "rmvb",
-        "ts", "mts", "m2ts", "vob", "ogv", "drc",
-        "gif", "gifv", "mng", "qt", "yuv", "rm",
+        "ts", "mts", "m2ts", "vob", "ogv", "ogm", "drc",
+        "gif", "gifv", "mng", "qt", "yuv",
         "asf", "amv", "m4p", "mpg", "mp2", "mpeg",
-        "mpe", "mpv", "m2v", "svi", "3gpp", "3g2",
-        "mxf", "roq", "nsv", "f4v", "f4p", "f4a",
-        "f4b"
+        "mpe", "mpv", "m2v", "svi", "mxf", "nsv",
+        "f4v", "f4p", "f4a", "f4b",
+        // 其他格式
+        "divx", "xvid", "rv", "rm", "rmvb", "fla",
+        "flr", "pxr", "viv", "svq", "aqt", "vivo"
     ]
 
     /// 验证文件是否可播放（通过 AVFoundation）
     static func canPlayWithAVFoundation(url: URL) -> Bool {
         let asset = AVAsset(url: url)
         return asset.isPlayable
+    }
+
+    /// 获取格式描述
+    static func formatDescription(for url: URL) -> String {
+        let ext = url.pathExtension.lowercased()
+
+        switch ext {
+        case "mkv": return "Matroska 视频 (需要 FFmpeg)"
+        case "webm": return "WebM 视频 (需要 FFmpeg)"
+        case "flv": return "Flash 视频 (需要 FFmpeg)"
+        case "wmv": return "Windows Media 视频 (需要 FFmpeg)"
+        case "rm", "rmvb": return "RealMedia 视频 (需要 FFmpeg)"
+        case "avi": return "AVI 视频"
+        case "mp4": return "MPEG-4 视频"
+        case "mov": return "QuickTime 视频"
+        case "m4v": return "iTunes 视频"
+        default: return "视频文件"
+        }
     }
 }

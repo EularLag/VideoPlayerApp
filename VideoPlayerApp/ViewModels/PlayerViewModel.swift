@@ -45,6 +45,15 @@ class PlayerViewModel: ObservableObject {
     /// 播放进度 (0.0 - 1.0)
     @Published var playbackProgress: Double = 0.0
 
+    /// 是否正在转换视频（使用 FFmpeg）
+    @Published var isConverting: Bool = false
+
+    /// 转换进度 (0.0 - 1.0)
+    @Published var conversionProgress: Double = 0.0
+
+    /// 转换状态描述
+    @Published var conversionStatus: String = ""
+
     // MARK: - Private Properties
 
     private var player: AVPlayer?
@@ -102,7 +111,39 @@ class PlayerViewModel: ObservableObject {
         do {
             // 确定使用哪种播放引擎
             let engine = DecoderFactory.determineEngine(for: url)
+            let formatDesc = FormatDetector.formatDescription(for: url)
             print("使用播放引擎: \(engine == .avfoundation ? "AVFoundation" : "FFmpeg")")
+            print("文件格式: \(formatDesc)")
+
+            // 如果是 FFmpeg 模式，先进行转换
+            if engine == .ffmpeg {
+                isConverting = true
+                conversionStatus = "正在转换视频格式..."
+                conversionProgress = 0.0
+
+                // 使用带进度回调的转换方法
+                let convertedURL = try await withCheckedThrowingContinuation { continuation in
+                    DecoderFactory.convertWithFFmpeg(url: url) { progress in
+                        Task { @MainActor in
+                            self.conversionProgress = progress
+                            self.conversionStatus = "正在转换视频... \(Int(progress * 100))%"
+                        }
+                    } completion: { result in
+                        Task { @MainActor in
+                            self.isConverting = false
+                            switch result {
+                            case .success(let url):
+                                continuation.resume(returning: url)
+                            case .failure(let error):
+                                continuation.resume(throwing: error)
+                            }
+                        }
+                    }
+                }
+
+                // 使用转换后的 URL 继续处理
+                return try await loadConvertedVideo(convertedURL)
+            }
 
             // 加载视频元数据
             let metadata = try await VideoMetadata.load(from: url)
@@ -130,13 +171,55 @@ class PlayerViewModel: ObservableObject {
             self.currentTime = 0
             self.hasVideo = true
             self.playbackState = .ready
+            self.conversionStatus = ""
 
             setupTimeObserver()
 
         } catch {
             self.playbackState = .error(error)
             self.hasVideo = false
+            self.isConverting = false
+            self.conversionStatus = "转换失败: \(error.localizedDescription)"
             print("加载视频失败: \(error.localizedDescription)")
+        }
+    }
+
+    /// 加载转换后的视频文件
+    private func loadConvertedVideo(_ url: URL) async throws {
+        // 加载视频元数据
+        let metadata = try await VideoMetadata.load(from: url)
+        self.metadata = metadata
+
+        // 创建播放器项
+        let playerItem = AVPlayerItem(url: url)
+        self.playerItem = playerItem
+
+        // 创建或更新播放器
+        if player == nil {
+            player = AVPlayer(playerItem: playerItem)
+        } else {
+            player?.replaceCurrentItem(with: playerItem)
+        }
+
+        // 设置音量
+        player?.volume = volume
+
+        // 监听播放器项状态
+        try await waitForPlayerReady()
+
+        // 更新属性
+        self.totalDuration = metadata.durationInSeconds
+        self.currentTime = 0
+        self.hasVideo = true
+        self.playbackState = .ready
+        self.conversionStatus = ""
+
+        setupTimeObserver()
+
+        // 转换完成后清理临时文件（延迟 5 秒，确保开始播放）
+        Task {
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            DecoderFactory.cleanupConvertedFile(url)
         }
     }
 
