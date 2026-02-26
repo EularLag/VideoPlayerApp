@@ -19,6 +19,9 @@
 		AA001A /* VideoFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0019 /* VideoFormatter.swift */; };
 		AA001B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0020 /* Constants.swift */; };
 		AA001C /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA0021 /* Info.plist */; };
+		AA001D /* FormatDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0023 /* FormatDetector.swift */; };
+		AA001E /* FFmpegDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0024 /* FFmpegDecoder.swift */; };
+		AA001F /* DecoderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0025 /* DecoderFactory.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +38,9 @@
 		AA0020 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		AA0021 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA0022 /* VideoPlayerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoPlayerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0023 /* FormatDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatDetector.swift; sourceTree = "<group>"; };
+		AA0024 /* FFmpegDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FFmpegDecoder.swift; sourceTree = "<group>"; };
+		AA0025 /* DecoderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoderFactory.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +70,7 @@
 				AA0044 /* ViewModels */,
 				AA0045 /* Views */,
 				AA0046 /* Utilities */,
+				AA0048 /* Services */,
 				AA0047 /* Resources */,
 			);
 			path = VideoPlayerApp;
@@ -111,6 +118,7 @@
 			children = (
 				AA0019 /* VideoFormatter.swift */,
 				AA0020 /* Constants.swift */,
+				AA0023 /* FormatDetector.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -121,6 +129,15 @@
 				AA0021 /* Info.plist */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		AA0048 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA0024 /* FFmpegDecoder.swift */,
+				AA0025 /* DecoderFactory.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -198,6 +215,9 @@
 				AA0009 /* FilePickerView.swift in Sources */,
 				AA001A /* VideoFormatter.swift in Sources */,
 				AA001B /* Constants.swift in Sources */,
+				AA001D /* FormatDetector.swift in Sources */,
+				AA001E /* FFmpegDecoder.swift in Sources */,
+				AA001F /* DecoderFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

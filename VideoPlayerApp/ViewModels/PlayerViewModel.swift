@@ -100,12 +100,16 @@ class PlayerViewModel: ObservableObject {
         playbackState = .loading
 
         do {
+            // 确定使用哪种播放引擎
+            let engine = DecoderFactory.determineEngine(for: url)
+            print("使用播放引擎: \(engine == .avfoundation ? "AVFoundation" : "FFmpeg")")
+
             // 加载视频元数据
             let metadata = try await VideoMetadata.load(from: url)
             self.metadata = metadata
 
-            // 创建播放器项
-            let playerItem = AVPlayerItem(url: url)
+            // 使用工厂创建播放器项
+            let playerItem = DecoderFactory.createPlayerItem(for: url, engine: engine)
             self.playerItem = playerItem
 
             // 创建或更新播放器
